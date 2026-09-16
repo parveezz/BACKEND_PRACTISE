@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express, { json, urlencoded } from "express";
 import authRoutes from "./src/routes/authRoutes.js";
+import userRoutes from "./src/routes/userRoutes.js";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 

@@ -59,3 +59,14 @@ export const updatePassword = async (userId, passwordHash) => {
             [passwordHash, userId],
       )
 }
+
+export const findUserById = async (userId) => {
+      const result = await db.query(
+            `SELECT uuid AS id, first_name, last_name, date_of_birth, gender, email, phone_number, created_at
+             FROM users
+             WHERE uuid = $1`,
+            [userId],
+      )
+
+      return result.rows[0]
+}
