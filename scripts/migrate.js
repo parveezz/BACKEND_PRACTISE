@@ -1,0 +1,23 @@
+import fs from 'fs';
+import path from 'path';
+import 'dotenv/config';
+import db from '../src/config/db.js';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+async function runMigration() {
+    try {
+        const sqlFilePath = path.resolve(__dirname, '../migrations/001_create_users_table.sql');
+        const sql = fs.readFileSync(sqlFilePath, 'utf-8');
+        await db.query(sql);
+    } catch (error) {
+        console.error('Migration failed:', error);
+    } finally {
+        process.exit();
+    }
+}
+
+runMigration();
+

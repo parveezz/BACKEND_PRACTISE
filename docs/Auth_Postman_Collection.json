@@ -1,0 +1,125 @@
+{
+  "info": {
+    "name": "Fullstack Auth API",
+    "description": "Endpoints for Registration, Login, and Password Reset flow.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"gender\": \"Male\",\n  \"email\": \"john@example.com\",\n  \"number\": \"1234567890\",\n  \"password\": \"secret123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:4002/api/auth/register",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4002",
+          "path": ["api", "auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "2. Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"secret123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:4002/api/auth/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4002",
+          "path": ["api", "auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "3. Forgot Password",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"john@example.com\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:4002/api/auth/forgot-password",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4002",
+          "path": ["api", "auth", "forgot-password"]
+        }
+      }
+    },
+    {
+      "name": "4. Verify OTP",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"john@example.com\",\n  \"otp\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:4002/api/auth/verify-otp",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4002",
+          "path": ["api", "auth", "verify-otp"]
+        }
+      }
+    },
+    {
+      "name": "5. Reset Password",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"newpassword123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:4002/api/auth/reset-password",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "4002",
+          "path": ["api", "auth", "reset-password"]
+        }
+      }
+    }
+  ]
+}
+
