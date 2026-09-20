@@ -1,12 +1,12 @@
 import db from "../config/db.js"
 
-export const createUser = async ({ firstName, lastName, dateOfBirth, gender, email, number, passwordHash }) => {
+export const createUser = async ({ username, name, email, passwordHash }) => {
       const result = await db.query(
             `INSERT INTO users
-                  (first_name, last_name, date_of_birth, gender, email, phone_number, password_hash)
-             VALUES ($1, $2, $3, $4, $5, $6, $7)
-             RETURNING uuid AS id, first_name, last_name, date_of_birth, gender, email, phone_number, created_at`,
-            [firstName, lastName, dateOfBirth, gender, email, number, passwordHash],
+                  (username, first_name, email, password_hash)
+             VALUES ($1, $2, $3, $4)
+             RETURNING uuid AS id, username, first_name, email, created_at`,
+            [username, name, email, passwordHash],
       )
 
       return result.rows[0]
@@ -16,6 +16,15 @@ export const uniqueEmail = async (email) => {
       const result = await db.query(
             `SELECT uuid FROM users WHERE email = $1`,
             [email]
+      )
+
+      return result.rowCount === 0
+}
+
+export const uniqueUsername = async (username) => {
+      const result = await db.query(
+            `SELECT uuid FROM users WHERE username = $1`,
+            [username]
       )
 
       return result.rowCount === 0
@@ -150,65 +159,7 @@ export const restoreUser = async (userId) => {
       return result.rows[0]
 }
 
-export const createUserImage = async (userId, imageUrl, cloudinaryPublicId, description, tags) => {
-      const result = await db.query(`
-            INSERT INTO user_images (user_uuid, image_url, cloudinary_public_id, description, tags)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING id, user_uuid, image_url, cloudinary_public_id, description, tags, created_at
-      `, [userId, imageUrl, cloudinaryPublicId, description, tags]);
 
-      return result.rows[0]
-}
-
-export const getAllImages = async (limit = 20, offset = 0) => {
-      const result = await db.query(`
-            SELECT i.id, i.image_url, i.description, i.tags, i.created_at,
-                   u.uuid as author_id, u.first_name as author_first_name, u.last_name as author_last_name, u.avatar_url as author_avatar
-            FROM user_images i
-            JOIN users u ON i.user_uuid = u.uuid
-            ORDER BY i.created_at DESC
-            LIMIT $1 OFFSET $2
-      `, [limit, offset]);
-      return result.rows;
-}
-
-export const getUserImages = async (userId, limit = 20, offset = 0) => {
-      const result = await db.query(`
-            SELECT i.id, i.image_url, i.description, i.tags, i.created_at
-            FROM user_images i
-            WHERE i.user_uuid = $1
-            ORDER BY i.created_at DESC
-            LIMIT $2 OFFSET $3
-      `, [userId, limit, offset]);
-      return result.rows;
-}
-
-export const getImageById = async (imageId) => {
-      const result = await db.query(`
-            SELECT id, user_uuid, image_url, cloudinary_public_id, description, tags
-            FROM user_images
-            WHERE id = $1
-      `, [imageId]);
-      return result.rows[0];
-}
-
-export const deleteImage = async (imageId) => {
-      await db.query(`
-            DELETE FROM user_images
-            WHERE id = $1
-      `, [imageId]);
-}
-
-export const updateImageDetails = async (imageId, description, tags) => {
-      const result = await db.query(`
-            UPDATE user_images
-            SET description = COALESCE($1, description),
-                tags = COALESCE($2, tags)
-            WHERE id = $3
-            RETURNING id, user_uuid, image_url, description, tags, created_at
-      `, [description, tags, imageId]);
-      return result.rows[0];
-}
 
 export const updateUserAvatar = async (userId, avatarUrl, avatarPublicId) => {
       const result = await db.query(`

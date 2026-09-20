@@ -62,31 +62,27 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "firstName": {
+                  "username": {
                     "type": "string"
                   },
-                  "lastName": {
-                    "type": "string"
-                  },
-                  "dateOfBirth": {
+                  "name": {
                     "type": "string",
-                    "example": "1990-01-01"
-                  },
-                  "gender": {
-                    "type": "string"
+                    "description": "Optional"
                   },
                   "email": {
                     "type": "string",
                     "format": "email"
                   },
-                  "number": {
-                    "type": "string"
-                  },
                   "password": {
                     "type": "string",
                     "minLength": 8
                   }
-                }
+                },
+                "required": [
+                  "username",
+                  "email",
+                  "password"
+                ]
               }
             }
           }
@@ -388,7 +384,36 @@
           "200": {
             "description": "Success"
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter images by category tag (e.g. nature, tech)"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 15
+            }
+          }
+        ]
       }
     },
     "/images/user/{userId}": {
@@ -622,6 +647,52 @@
           },
           "500": {
             "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/images/search": {
+      "get": {
+        "summary": "Global image search",
+        "tags": [
+          "Images"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search keyword"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 15
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Missing query parameter 'q'"
           }
         }
       }

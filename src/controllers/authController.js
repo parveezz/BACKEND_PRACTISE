@@ -10,32 +10,22 @@ import {
       saveResetToken,
       updatePassword,
       uniqueEmail,
+      uniqueUsername,
 } from "../model/userModel.js";
 
 export const register = async (req, res) => {
       try {
             const {
-                  firstName,
-                  lastName,
-                  dateOfBirth,
-                  gender,
+                  username,
+                  name,
                   email,
-                  number,
                   password,
             } = req.body;
 
-            if (
-                  !firstName ||
-                  !lastName ||
-                  !dateOfBirth ||
-                  !gender ||
-                  !email ||
-                  !number ||
-                  !password
-            ) {
+            if (!username || !email || !password) {
                   return res.status(400).json({
                         success: false,
-                        message: "All fields are required",
+                        message: "Username, email, and password are required",
                   });
             }
 
@@ -46,45 +36,40 @@ export const register = async (req, res) => {
                   });
             }
 
-            if (
-                  !/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth) ||
-                  Number.isNaN(Date.parse(dateOfBirth))
-            ) {
-                  return res.status(400).json({
-                        success: false,
-                        message: "Date of birth must be in YYYY-MM-DD format",
-                  });
-            }
-
             const normalizedEmail = email.trim().toLowerCase();
+            const normalizedUsername = username.trim().toLowerCase();
 
-            const isUnique = await uniqueEmail(normalizedEmail);
-
-            if (!isUnique) {
+            const isUniqueEmail = await uniqueEmail(normalizedEmail);
+            if (!isUniqueEmail) {
                   return res.status(409).json({
                         success: false,
                         message: "Email is already registered",
                   });
             }
 
+            const isUniqueUsername = await uniqueUsername(normalizedUsername);
+            if (!isUniqueUsername) {
+                  return res.status(409).json({
+                        success: false,
+                        message: "Username is already taken",
+                  });
+            }
+
             const passwordHash = await bcrypt.hash(password, 12);
 
             const user = await createUser({
-                  firstName: firstName.trim(),
-                  lastName: lastName.trim(),
-                  dateOfBirth,
-                  gender: gender.trim(),
+                  username: normalizedUsername,
+                  name: name ? name.trim() : null,
                   email: normalizedEmail,
-                  number: number.trim(),
                   passwordHash,
             });
 
-            // Send Welcome Email asynchronously (no need to await it to block the response)
+            // Send Welcome Email asynchronously
             Nodemailer({
                   to: normalizedEmail,
                   subject: "Welcome to Our Platform!",
-                  text: `Welcome, ${firstName.trim()}! We are thrilled to have you on board.`,
-                  html: welcomeEmailTemplate(firstName.trim()),
+                  text: `Welcome, ${user.first_name || user.username}! We are thrilled to have you on board.`,
+                  html: welcomeEmailTemplate(user.first_name || user.username),
             }).catch(err => console.error("Failed to send welcome email:", err));
 
             return res.status(201).json({
