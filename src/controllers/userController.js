@@ -17,7 +17,7 @@ export const getProfile = async (req, res) => {
             return res.status(200).json({
                   success: true,
                   message: "User profile fetched successfully",
-                  data: user,
+                  data: user
             });
       } catch (error) {
             console.error("Get profile error:", error);

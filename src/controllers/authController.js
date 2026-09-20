@@ -327,6 +327,14 @@ export const resetPassword = async (req, res) => {
                   });
             }
 
+            const resetUser = await findUserForReset(userBase.id);
+            if (!resetUser) {
+                  return res.status(400).json({
+                        success: false,
+                        message: "Password reset request has expired or is invalid. Please request a new OTP.",
+                  });
+            }
+
             const passwordHash = await bcrypt.hash(password, 12);
 
             await updatePassword(

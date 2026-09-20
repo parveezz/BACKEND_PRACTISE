@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express, { json, urlencoded } from "express";
+import cors from "cors";
 import authRoutes from "./src/routes/authRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
 import swaggerUi from "swagger-ui-express";
@@ -7,9 +8,17 @@ import fs from "fs";
 
 const app = express();
 
+app.use(cors({
+  origin: true,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
 app.use(urlencoded({ extended: true }));
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 const swaggerDocument = JSON.parse(
   fs.readFileSync(new URL('./docs/swagger.json', import.meta.url))
