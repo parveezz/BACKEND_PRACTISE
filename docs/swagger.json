@@ -1,27 +1,60 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Backend",
+    "title": "Backend API",
     "version": "1.0.0",
-    "description": "Authentication API documentation for the Fullstack Project"
+    "description": "API documentation for the Fullstack Project"
   },
   "servers": [
     {
-      "url": "http://localhost:4002/api/auth",
-      "description": "Development Server (Auth Routes)"
+      "url": "http://localhost:4002",
+      "description": "Local Development Server"
+    },
+    {
+      "url": "https://backend-practise-h68x.onrender.com",
+      "description": "Production Server (Render)"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
     }
   ],
   "tags": [
     {
       "name": "Auth",
-      "description": "Authentication and authorization endpoints"
+      "description": "Authentication endpoints"
+    },
+    {
+      "name": "Users",
+      "description": "User management endpoints"
+    },
+    {
+      "name": "Images",
+      "description": "Image upload endpoints"
+    },
+    {
+      "name": "General",
+      "description": "General forms and public endpoints"
     }
   ],
   "paths": {
-    "/register": {
+    "/auth/register": {
       "post": {
         "summary": "Register a new user",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -29,31 +62,49 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "firstName": { "type": "string", "example": "John" },
-                  "lastName": { "type": "string", "example": "Doe" },
-                  "dateOfBirth": { "type": "string", "example": "1990-01-01" },
-                  "gender": { "type": "string", "example": "Male" },
-                  "email": { "type": "string", "format": "email", "example": "john@example.com" },
-                  "number": { "type": "string", "example": "1234567890" },
-                  "password": { "type": "string", "minLength": 8, "example": "secret123" }
-                },
-                "required": ["firstName", "lastName", "dateOfBirth", "gender", "email", "number", "password"]
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "example": "1990-01-01"
+                  },
+                  "gender": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "number": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 8
+                  }
+                }
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "User registered successfully" },
-          "400": { "description": "Bad Request (missing fields, invalid password, or invalid date format)" },
-          "409": { "description": "Email is already registered" },
-          "500": { "description": "Internal server error" }
+          "201": {
+            "description": "Success"
+          }
         }
       }
     },
-    "/login": {
+    "/auth/login": {
       "post": {
         "summary": "Login user",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -61,77 +112,387 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": { "type": "string", "format": "email", "example": "john@example.com" },
-                  "password": { "type": "string", "example": "secret123" }
-                },
-                "required": ["email", "password"]
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Login successful. Returns user data and JWT access token." },
-          "400": { "description": "Email and password are required" },
-          "401": { "description": "Invalid email or password" },
-          "500": { "description": "Internal server error" }
+          "200": {
+            "description": "Success"
+          }
         }
       }
     },
-    "/forgot-password": {
+    "/auth/forgot-password": {
       "post": {
-        "summary": "Request a password reset OTP",
-        "tags": ["Auth"],
+        "summary": "Forgot password",
+        "tags": [
+          "Auth"
+        ],
+        "security": [],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": { "type": "string", "format": "email", "example": "john@example.com" }
-                },
-                "required": ["email"]
+                  "email": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "If an account with this email exists, a password reset link has been sent." },
-          "400": { "description": "Email is required" },
-          "500": { "description": "Unable to process password reset or send email" }
+          "200": {
+            "description": "Success"
+          }
         }
       }
     },
-    "/verify-otp": {
+    "/auth/verify-otp": {
       "post": {
-        "summary": "Verify the 6-digit OTP sent to the user's email",
-        "tags": ["Auth"],
+        "summary": "Verify OTP",
+        "tags": [
+          "Auth"
+        ],
+        "security": [],
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": { "type": "string", "format": "email", "example": "john@example.com" },
-                  "otp": { "type": "string", "example": "123456" }
-                },
-                "required": ["email", "otp"]
+                  "email": {
+                    "type": "string"
+                  },
+                  "otp": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "OTP verified successfully" },
-          "400": { "description": "Invalid or expired OTP" },
-          "500": { "description": "Unable to verify OTP" }
+          "200": {
+            "description": "Success"
+          }
         }
       }
     },
-    "/reset-password": {
+    "/auth/reset-password": {
       "post": {
-        "summary": "Update the password (after OTP verification)",
-        "tags": ["Auth"],
+        "summary": "Reset Password",
+        "tags": [
+          "Auth"
+        ],
+        "security": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Get all users (Admin)",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/users/profile": {
+      "get": {
+        "summary": "Get user profile",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/users/update": {
+      "patch": {
+        "summary": "Update user profile",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "dateOfBirth": {
+                    "type": "string"
+                  },
+                  "gender": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "number": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/users/deactivate": {
+      "patch": {
+        "summary": "Soft delete account",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/users/permanent": {
+      "delete": {
+        "summary": "Permanently delete account",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/images/avatar": {
+      "post": {
+        "summary": "Upload profile avatar",
+        "tags": [
+          "Images"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/images/platform-images": {
+      "post": {
+        "summary": "Upload platform images (multiple)",
+        "tags": [
+          "Images"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": "string"
+                  },
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all platform images (Feed)",
+        "tags": [
+          "Images"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/images/user/{userId}": {
+      "get": {
+        "summary": "Get specific user's platform images",
+        "tags": [
+          "Images"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/images/platform-images/{imageId}": {
+      "patch": {
+        "summary": "Update image details (description/tags)",
+        "tags": [
+          "Images"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an image",
+        "tags": [
+          "Images"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/contact": {
+      "post": {
+        "summary": "Submit contact form",
+        "tags": [
+          "General"
+        ],
+        "security": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -139,21 +500,131 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": { "type": "string", "format": "email", "example": "john@example.com" },
-                  "password": { "type": "string", "minLength": 8, "example": "newpassword123" }
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
                 },
-                "required": ["email", "password"]
+                "required": [
+                  "name",
+                  "email",
+                  "message"
+                ]
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "Password updated successfully" },
-          "400": { "description": "User not found or missing fields" },
-          "500": { "description": "Unable to reset password" }
+          "201": {
+            "description": "Message sent successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/newsletter": {
+      "post": {
+        "summary": "Subscribe to newsletter",
+        "tags": [
+          "General"
+        ],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Already subscribed"
+          },
+          "201": {
+            "description": "Successfully subscribed"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/feedback": {
+      "post": {
+        "summary": "Submit feedback (anonymous or authenticated)",
+        "tags": [
+          "General"
+        ],
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rating": {
+                    "type": "integer",
+                    "example": 5
+                  },
+                  "comments": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "rating",
+                  "comments"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Feedback submitted successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
         }
       }
     }
   }
 }
-

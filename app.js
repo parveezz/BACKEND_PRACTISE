@@ -3,6 +3,8 @@ import express, { json, urlencoded } from "express";
 import cors from "cors";
 import authRoutes from "./src/routes/authRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
+import imageRoutes from "./src/routes/imageRoutes.js";
+import generalRoutes from "./src/routes/generalRoutes.js";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 
@@ -19,6 +21,8 @@ app.use(urlencoded({ extended: true }));
 app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
+app.use("/images", imageRoutes);
+app.use("/", generalRoutes);
 
 const swaggerDocument = JSON.parse(
   fs.readFileSync(new URL('./docs/swagger.json', import.meta.url))
