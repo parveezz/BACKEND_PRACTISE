@@ -17,13 +17,13 @@ app.use(cors({
 
 app.use(urlencoded({ extended: true }));
 app.use(express.json());
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
+app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
 
 const swaggerDocument = JSON.parse(
   fs.readFileSync(new URL('./docs/swagger.json', import.meta.url))
 );
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get("/", (req, res) => {
   res.send(`
