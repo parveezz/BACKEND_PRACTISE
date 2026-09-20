@@ -149,3 +149,13 @@ export const restoreUser = async (userId) => {
 
       return result.rows[0]
 }
+
+export const createUserImage = async (userId, imageUrl, cloudinaryPublicId) => {
+      const result = await db.query(`
+            INSERT INTO user_images (user_uuid, image_url, cloudinary_public_id)
+            VALUES ($1, $2, $3)
+            RETURNING id, user_uuid, image_url, cloudinary_public_id, created_at
+      `, [userId, imageUrl, cloudinaryPublicId]);
+
+      return result.rows[0]
+}

@@ -1,4 +1,5 @@
-import { findUserById, getUsers, updateSingleUser, permanentlyDeleteUser, softDeleteUser, suspendUser as suspendUserModel, restoreUser } from "../model/userModel.js";
+import { findUserById, getUsers, updateSingleUser, permanentlyDeleteUser, softDeleteUser, suspendUser as suspendUserModel, restoreUser, createUserImage } from "../model/userModel.js";
+import cloudinary from "../config/cloudinary.js";
 
 export const getProfile = async (req, res) => {
       try {
@@ -24,6 +25,50 @@ export const getProfile = async (req, res) => {
             return res.status(500).json({
                   success: false,
                   message: "Unable to fetch user profile",
+            });
+      }
+};
+
+export const uploadAvatar = async (req, res) => {
+      try {
+            if (!req.file) {
+                  return res.status(400).json({
+                        success: false,
+                        message: "Image file is required",
+                  });
+            }
+
+            const uploadResult = await new Promise((resolve, reject) => {
+                  const stream = cloudinary.uploader.upload_stream(
+                        { folder: "user-avatars", resource_type: "image" },
+                        (error, result) => error ? reject(error) : resolve(result),
+                  );
+
+                  stream.end(req.file.buffer);
+            });
+
+            const image = await createUserImage(
+                  req.user.userId,
+                  uploadResult.secure_url,
+                  uploadResult.public_id,
+            );
+
+            if (!image) {
+                  return res.status(404).json({
+                        success: false,
+                        message: "User not found",
+                  });
+            }
+
+            return res.status(200).json({
+                  success: true,
+                  message: "Profile image uploaded",
+                  data: image,
+            });
+      } catch (error) {
+            return res.status(500).json({
+                  success: false,
+                  message: "Failed to upload profile image",
             });
       }
 };
