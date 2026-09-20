@@ -10,10 +10,13 @@ export const createUserImage = async (userId, imageUrl, cloudinaryPublicId, desc
       return result.rows[0]
 }
 
-export const getAllImages = async (limit = 20, offset = 0, category = "") => {
+export const getAllImages = async (limit = 20, offset = 0, category = "", sortBy = "recent") => {
       let query = `
-            SELECT i.id, i.image_url, i.description, i.tags, i.created_at, i.downloads,
-                   u.uuid as author_id, u.first_name as author_first_name, u.last_name as author_last_name, u.avatar_url as author_avatar
+            SELECT i.id, i.image_url, i.description, i.tags, i.created_at, COALESCE(i.downloads, 0) as downloads, COALESCE(i.views, 0) as views,
+                   u.uuid as author_id, u.first_name as author_first_name, u.last_name as author_last_name, u.avatar_url as author_avatar,
+                   (SELECT COUNT(id) FROM image_likes WHERE image_id = i.id) as likes_count,
+                   (SELECT COUNT(id) FROM image_comments WHERE image_id = i.id) as comments_count,
+                   (SELECT COALESCE(AVG(rating), 0) FROM image_ratings WHERE image_id = i.id) as average_rating
             FROM user_images i
             JOIN users u ON i.user_uuid = u.uuid
       `;
@@ -24,7 +27,15 @@ export const getAllImages = async (limit = 20, offset = 0, category = "") => {
             queryParams.push(`%${category}%`);
       }
 
-      query += ` ORDER BY i.created_at DESC LIMIT $1 OFFSET $2`;
+      // Sorting logic
+      let orderClause = ` ORDER BY i.created_at DESC`;
+      if (sortBy === "popular") orderClause = ` ORDER BY downloads DESC, i.created_at DESC`;
+      else if (sortBy === "rated") orderClause = ` ORDER BY average_rating DESC, i.created_at DESC`;
+      else if (sortBy === "liked") orderClause = ` ORDER BY likes_count DESC, i.created_at DESC`;
+      else if (sortBy === "viewed") orderClause = ` ORDER BY views DESC, i.created_at DESC`;
+      else if (sortBy === "commented") orderClause = ` ORDER BY comments_count DESC, i.created_at DESC`;
+
+      query += orderClause + ` LIMIT $1 OFFSET $2`;
 
       const result = await db.query(query, queryParams);
       return result.rows;
@@ -91,6 +102,16 @@ export const incrementDownload = async (imageId) => {
             SET downloads = COALESCE(downloads, 0) + 1
             WHERE id = $1
             RETURNING id, downloads
+      `, [imageId]);
+      return result.rows[0];
+}
+
+export const incrementView = async (imageId) => {
+      const result = await db.query(`
+            UPDATE user_images
+            SET views = COALESCE(views, 0) + 1
+            WHERE id = $1
+            RETURNING id, views
       `, [imageId]);
       return result.rows[0];
 }

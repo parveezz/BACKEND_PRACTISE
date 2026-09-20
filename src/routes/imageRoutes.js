@@ -8,6 +8,7 @@ import {
       updatePlatformImage,
       searchGlobalImages,
       recordDownload,
+      recordView,
       toggleImageLike
 } from "../controllers/imageController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -35,6 +36,9 @@ router.delete("/platform-images/:imageId", authMiddleware, deletePlatformImage);
 
 // Update an image (description/tags)
 router.patch("/platform-images/:imageId", authMiddleware, updatePlatformImage);
+
+// Record a view
+router.post("/platform-images/:imageId/view", recordView);
 
 // Record a download
 router.post("/platform-images/:imageId/download", recordDownload);

@@ -412,6 +412,24 @@
               "type": "integer",
               "default": 15
             }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "recent",
+                "popular",
+                "rated",
+                "liked",
+                "viewed",
+                "commented"
+              ],
+              "default": "recent"
+            },
+            "description": "Sort images"
           }
         ]
       }
@@ -693,6 +711,30 @@
           },
           "400": {
             "description": "Missing query parameter 'q'"
+          }
+        }
+      }
+    },
+    "/images/platform-images/{imageId}/view": {
+      "post": {
+        "summary": "Record an image view",
+        "tags": [
+          "Images"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "name": "imageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
           }
         }
       }

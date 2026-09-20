@@ -1,5 +1,5 @@
 import { findUserById, updateUserAvatar } from "../model/userModel.js";
-import { createUserImage, getAllImages, getUserImages, getImageById, deleteImage, updateImageDetails, searchImages, incrementDownload, toggleLike } from "../model/imageModel.js";
+import { createUserImage, getAllImages, getUserImages, getImageById, deleteImage, updateImageDetails, searchImages, incrementDownload, toggleLike, incrementView } from "../model/imageModel.js";
 import cloudinary from "../config/cloudinary.js";
 
 export const searchGlobalImages = async (req, res) => {
@@ -38,15 +38,17 @@ export const getFeedImages = async (req, res) => {
             const page = parseInt(req.query.page) || 1;
             const limit = parseInt(req.query.limit) || 15;
             const category = req.query.category || "";
+            const sort = req.query.sort || "recent";
             const offset = (page - 1) * limit;
 
-            const images = await getAllImages(limit, offset, category);
+            const images = await getAllImages(limit, offset, category, sort);
 
             return res.status(200).json({
                   success: true,
                   page,
                   limit,
                   category: category || "all",
+                  sort,
                   data: images
             });
       } catch (error) {
@@ -268,6 +270,31 @@ export const updatePlatformImage = async (req, res) => {
             return res.status(500).json({
                   success: false,
                   message: "Failed to update image",
+            });
+      }
+};
+
+export const recordView = async (req, res) => {
+      try {
+            const { imageId } = req.params;
+
+            const image = await getImageById(imageId);
+            if (!image) {
+                  return res.status(404).json({ success: false, message: "Image not found" });
+            }
+
+            const updated = await incrementView(imageId);
+
+            return res.status(200).json({
+                  success: true,
+                  message: "View recorded",
+                  views: updated.views
+            });
+      } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                  success: false,
+                  message: "Failed to record view",
             });
       }
 };

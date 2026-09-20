@@ -5,6 +5,7 @@ import helmet from "helmet";
 import authRoutes from "./src/routes/authRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
 import imageRoutes from "./src/routes/imageRoutes.js";
+import videoRoutes from "./src/routes/videoRoutes.js";
 import generalRoutes from "./src/routes/generalRoutes.js";
 import errorHandlerMiddleware from "./src/middleware/errorHandlerMiddleware.js";
 import swaggerUi from "swagger-ui-express";
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/images", imageRoutes);
+app.use("/videos", videoRoutes);
 app.use("/", generalRoutes);
 
 const swaggerDocument = JSON.parse(
