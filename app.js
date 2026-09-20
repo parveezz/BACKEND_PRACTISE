@@ -1,14 +1,19 @@
 import "dotenv/config";
 import express, { json, urlencoded } from "express";
 import cors from "cors";
+import helmet from "helmet";
 import authRoutes from "./src/routes/authRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
 import imageRoutes from "./src/routes/imageRoutes.js";
 import generalRoutes from "./src/routes/generalRoutes.js";
+import errorHandlerMiddleware from "./src/middleware/errorHandlerMiddleware.js";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 
 const app = express();
+
+// Security Headers
+app.use(helmet());
 
 app.use(cors({
   origin: true,
@@ -56,6 +61,9 @@ app.get("/", (req, res) => {
     </html>
   `);
 });
+
+// Global Error Handler (must be the last middleware)
+app.use(errorHandlerMiddleware);
 
 export default app;
 

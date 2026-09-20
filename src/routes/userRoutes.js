@@ -9,12 +9,13 @@ import {
       restore,
 } from "../controllers/userController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
+import adminMiddleware from "../middleware/adminMiddleware.js";
 
 const router = Router();
 
 // Protect the /profile route with the auth middleware
 router.get("/profile", authMiddleware, getProfile);
-router.get("/", authMiddleware, fetchUsers);
+router.get("/", authMiddleware, adminMiddleware, fetchUsers);
 router.patch("/update", authMiddleware, updateUser);
 router.patch("/suspend", authMiddleware, suspendUser);
 router.patch("/deactivate", authMiddleware, softDelete);
