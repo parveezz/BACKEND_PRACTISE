@@ -2,6 +2,7 @@ import "dotenv/config";
 import express, { json, urlencoded } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import { rateLimit } from "express-rate-limit";
 import authRoutes from "./src/routes/authRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
 import imageRoutes from "./src/routes/imageRoutes.js";
@@ -12,15 +13,44 @@ import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 
 const app = express();
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+].filter(Boolean);
+
+// Render sits behind a proxy. Trust its first proxy so rate limiting uses the
+// requesting client's IP address instead of the proxy's address.
+app.set("trust proxy", 1);
 
 // Security Headers
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
 
 app.use(cors({
-  origin: true,
+  origin(origin, callback) {
+    // Requests without an Origin header (for example health checks and curl)
+    // are safe to allow; browser requests must come from an approved frontend.
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(null, false);
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many requests. Please try again later.",
+  },
 }));
 
 app.use(urlencoded({ extended: true }));
@@ -68,4 +98,3 @@ app.get("/", (req, res) => {
 app.use(errorHandlerMiddleware);
 
 export default app;
-
